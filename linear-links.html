@@ -1,0 +1,892 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Linear Links</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Raleway:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a scorecard-style control column beside a large graph-paper course; stacks on phones. */
+:root {
+  --bg: #f3f5f2;
+  --panel: #ffffff;
+  --ink: #1d2420;
+  --muted: #5d6862;
+  --line: #d8ded9;
+  --accent: #8b1a38;
+  --accent-ink: #ffffff;
+  --accent-soft: #f6e7eb;
+  --paper: #fbfcfb;
+  --grid-minor: #e3e8e4;
+  --grid-major: #c3ccc6;
+  --axis: #4a534d;
+  --felt: #b7d6b1;
+  --felt-edge: #1e2621;
+  --water: #4f8fd1;
+  --water-edge: #2b67a6;
+  --cup: #121614;
+  --ball: #d0312d;
+  --ok: #2f7d4a;
+  --ok-soft: #e3f2e7;
+  --bad: #b3261e;
+  --bad-soft: #fbe9e7;
+  --font-display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --font-ui: "Raleway", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121614; --panel: #1a201d; --ink: #e7ece8; --muted: #9aa69f; --line: #2d3531;
+    --accent: #d5577a; --accent-ink: #1a0a10; --accent-soft: #3a1b25;
+    --paper: #161b18; --grid-minor: #222a26; --grid-major: #34403a; --axis: #aeb9b2;
+    --felt: #2f5a3a; --felt-edge: #dfe7e2; --water: #3f7fc0; --water-edge: #8bbcf0;
+    --cup: #050706; --ball: #ff5a4f; --ok: #6cc58a; --ok-soft: #1c3324; --bad: #ff8a80; --bad-soft: #3a1f1d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121614; --panel: #1a201d; --ink: #e7ece8; --muted: #9aa69f; --line: #2d3531;
+  --accent: #d5577a; --accent-ink: #1a0a10; --accent-soft: #3a1b25;
+  --paper: #161b18; --grid-minor: #222a26; --grid-major: #34403a; --axis: #aeb9b2;
+  --felt: #2f5a3a; --felt-edge: #dfe7e2; --water: #3f7fc0; --water-edge: #8bbcf0;
+  --cup: #050706; --ball: #ff5a4f; --ok: #6cc58a; --ok-soft: #1c3324; --bad: #ff8a80; --bad-soft: #3a1f1d;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px 24px;
+}
+.wrap { max-width: 1280px; margin: 0 auto; display: grid; gap: 14px; }
+
+/* header */
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 20px; }
+.brand h1 { font-family: var(--font-display); font-weight: 700; font-size: 2.1rem; line-height: 1; margin: 0; letter-spacing: 0.01em; }
+.brand h1 em { color: var(--accent); font-style: italic; }
+.brand p { margin: 4px 0 0; color: var(--muted); font-size: 0.86rem; }
+nav.holes { display: flex; flex-wrap: wrap; gap: 6px; }
+nav.holes button {
+  font: 600 0.82rem var(--font-ui); letter-spacing: 0.02em; color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center;
+}
+nav.holes button[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+nav.holes .tick { color: var(--ok); font-weight: 700; }
+nav.holes button[aria-current="true"] .tick { color: inherit; }
+
+/* main */
+main { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.hole-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.hole-head h2 { font-family: var(--font-display); font-size: 1.65rem; margin: 0; line-height: 1.1; }
+.hole-head .no { display: block; font: 700 0.72rem var(--font-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
+.par { font: 700 0.78rem var(--font-ui); text-transform: uppercase; letter-spacing: 0.1em; border: 1.5px solid var(--ink); border-radius: 4px; padding: 3px 8px; white-space: nowrap; }
+.blurb { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.8rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+.lines { display: grid; gap: 8px; }
+.row { display: grid; grid-template-columns: 26px minmax(0, 1fr) 26px; gap: 6px; align-items: start; }
+.row .idx { width: 26px; height: 36px; display: grid; place-items: center; font: 700 0.78rem var(--font-ui); color: #fff; border-radius: 6px; }
+.row input {
+  width: 100%; min-width: 0; height: 36px; padding: 0 10px; font: 500 0.92rem var(--font-mono); color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 6px;
+}
+.row input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
+.row .del { height: 36px; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 1.1rem; border-radius: 6px; }
+.row .del:hover { color: var(--bad); }
+.row .note { grid-column: 2 / 4; font-size: 0.78rem; margin-top: -2px; min-height: 0; }
+.row .note.err { color: var(--bad); }
+.row .note.okn { color: var(--muted); font-family: var(--font-mono); font-size: 0.74rem; }
+.row.flag input { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
+
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { font: 600 0.88rem var(--font-ui); border-radius: 8px; padding: 9px 14px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+.btn:focus-visible, nav.holes button:focus-visible, .key:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); padding: 10px 22px; font-size: 0.95rem; letter-spacing: 0.02em; }
+.btn.primary:disabled { opacity: 0.55; cursor: progress; }
+.keys { display: flex; gap: 4px; margin-left: auto; }
+.key { font: 500 0.85rem var(--font-mono); min-width: 34px; height: 32px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+
+.msg { border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; border: 1px solid var(--line); background: var(--paper); color: var(--muted); }
+.msg strong { color: var(--ink); }
+.msg.ok { background: var(--ok-soft); border-color: transparent; color: var(--ink); }
+.msg.ok strong { color: var(--ok); }
+.msg.bad { background: var(--bad-soft); border-color: transparent; color: var(--ink); }
+.msg.bad strong { color: var(--bad); }
+.syntax { font-size: 0.78rem; color: var(--muted); margin: 0; }
+.syntax code { font-family: var(--font-mono); background: var(--paper); border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+
+/* board */
+.board { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; position: relative; min-width: 0; }
+.board svg { display: block; width: 100%; height: auto; max-height: 78vh; touch-action: manipulation; }
+.coords { position: absolute; right: 16px; top: 14px; font: 500 0.78rem var(--font-mono); color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; pointer-events: none; font-variant-numeric: tabular-nums; }
+svg text { font-family: var(--font-ui); }
+.tick-label { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.tip { font: 600 12px var(--font-mono); fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; }
+
+/* scorecard */
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 16px; max-width: 900px; width: 100%; justify-self: center; }
+.card h2 { font-family: var(--font-display); font-size: 2rem; margin: 0; }
+.card label { font-weight: 600; font-size: 0.85rem; display: grid; gap: 6px; max-width: 360px; }
+.card input { height: 38px; padding: 0 10px; font: 500 1rem var(--font-ui); border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+table.sc { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; min-width: 560px; }
+table.sc th, table.sc td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; font-size: 0.9rem; }
+table.sc th { font: 700 0.72rem var(--font-ui); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); background: var(--paper); }
+table.sc td.num { text-align: center; font-weight: 700; }
+table.sc .eqs { font-family: var(--font-mono); font-size: 0.8rem; white-space: pre-line; }
+.pill { display: inline-block; font: 700 0.72rem var(--font-ui); letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+.pill.done { background: var(--ok-soft); color: var(--ok); }
+.pill.todo { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.small { font-size: 0.82rem; color: var(--muted); margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Linear <em>Links</em></h1>
+      <p>Write linear equations with restrictions. Putt, and watch the ball roll your path.</p>
+    </div>
+    <nav class="holes" id="nav" aria-label="Holes"></nav>
+  </header>
+
+  <main id="play">
+    <section class="panel" aria-label="Your equations">
+      <div class="hole-head">
+        <h2><span class="no" id="holeNo"></span><span id="holeName"></span></h2>
+        <span class="par" id="holePar"></span>
+      </div>
+      <p class="blurb" id="holeBlurb"></p>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--ball);border-radius:50%"></i>tee</span>
+        <span><i class="sw" style="background:var(--cup);border-radius:50%"></i>cup</span>
+        <span><i class="sw" style="background:var(--water);opacity:.75"></i>water hazard</span>
+        <span><i class="sw" style="background:var(--felt);border:1.5px solid var(--felt-edge)"></i>course</span>
+      </div>
+      <div class="lines" id="lines"></div>
+      <div class="tools">
+        <button class="btn" id="addLine" type="button">+ Add a line</button>
+        <div class="keys" aria-label="Insert symbol">
+          <button class="key" type="button" data-ins="{  <= x <= }" title="Insert a restriction">{ }</button>
+          <button class="key" type="button" data-ins="<=" title="Insert ≤">≤</button>
+          <button class="key" type="button" data-ins="/" title="Insert a fraction bar">a/b</button>
+        </div>
+      </div>
+      <p class="syntax">Type lines the way you would in Desmos: <code>y = 2x - 4 {-2 &lt;= x &lt;= 12}</code>. Any form works, including <code>2x + 3y = 12 {0 &lt;= x &lt;= 3}</code> and <code>x = 5 {1 &lt;= y &lt;= 4}</code>. Hover a dot on the course to see its exact coordinates.</p>
+      <div class="tools">
+        <button class="btn primary" id="putt" type="button">Putt</button>
+        <button class="btn" id="resetBall" type="button">Reset ball</button>
+      </div>
+      <div class="msg" id="msg" role="status" aria-live="polite"><strong>Ready.</strong> Write your path, then press Putt.</div>
+    </section>
+
+    <section class="board" aria-label="Course">
+      <svg id="svg" role="img" aria-label="Mini-golf course on a coordinate grid"></svg>
+      <div class="coords" id="coords">(x, y)</div>
+    </section>
+  </main>
+
+  <section class="card" id="scorecard" hidden aria-label="Scorecard">
+    <div>
+      <h2>Scorecard</h2>
+      <p class="small">Finish all three holes, then show this card to your teacher or take a screenshot of it.</p>
+    </div>
+    <label for="playerName">Your name
+      <input id="playerName" type="text" autocomplete="name" placeholder="First and last name">
+    </label>
+    <div class="tablewrap"><table class="sc" id="scTable"></table></div>
+    <p class="small" id="scFoot"></p>
+  </section>
+</div>
+
+<script>
+// ===== Linear Links engine: parsing + ball physics (pure functions) =====
+const EPS = 1e-9;
+const SNAP = 1e-6;   // endpoints this close count as the same point
+const NEAR = 0.08;   // closer than this but not SNAP -> "almost" message
+
+// ---------- tiny linear-expression parser ----------
+// Returns {x, y, c} meaning x*X + y*Y + c
+function parseLinear(src) {
+  const s = src.replace(/−/g, '-').replace(/·|×/g, '*').replace(/\s+/g, '');
+  let i = 0;
+  const peek = () => s[i];
+  const fail = (m) => { throw new Error(m); };
+  const isConst = (v) => Math.abs(v.x) < EPS && Math.abs(v.y) < EPS;
+  const add = (a, b, k = 1) => ({ x: a.x + k * b.x, y: a.y + k * b.y, c: a.c + k * b.c });
+  const scale = (a, k) => ({ x: a.x * k, y: a.y * k, c: a.c * k });
+  function mul(a, b) {
+    if (isConst(a)) return scale(b, a.c);
+    if (isConst(b)) return scale(a, b.c);
+    fail('That isn’t a linear equation (two variables are multiplied).');
+  }
+  function expr() {
+    let v = term();
+    while (peek() === '+' || peek() === '-') {
+      const op = s[i++];
+      v = add(v, term(), op === '+' ? 1 : -1);
+    }
+    return v;
+  }
+  function term() {
+    let v = unary();
+    for (;;) {
+      const c = peek();
+      if (c === '*') { i++; v = mul(v, unary()); }
+      else if (c === '/') {
+        i++; const d = unary();
+        if (!isConst(d)) fail('You can only divide by a number.');
+        if (Math.abs(d.c) < EPS) fail('Division by zero.');
+        v = scale(v, 1 / d.c);
+      }
+      else if (c === '(' || c === 'x' || c === 'y' || (c && /[0-9.]/.test(c))) { v = mul(v, unary()); } // implicit
+      else break;
+    }
+    return v;
+  }
+  function unary() {
+    if (peek() === '-') { i++; return scale(unary(), -1); }
+    if (peek() === '+') { i++; return unary(); }
+    return atom();
+  }
+  function atom() {
+    const c = peek();
+    if (c === undefined) fail('Something is missing at the end.');
+    if (c === '(') {
+      i++; const v = expr();
+      if (peek() !== ')') fail('A parenthesis is missing.');
+      i++; return v;
+    }
+    if (c === 'x') { i++; return { x: 1, y: 0, c: 0 }; }
+    if (c === 'y') { i++; return { x: 0, y: 1, c: 0 }; }
+    const m = /^[0-9]*\.?[0-9]+|^[0-9]+\./.exec(s.slice(i));
+    if (m) { i += m[0].length; return { x: 0, y: 0, c: parseFloat(m[0]) }; }
+    fail(`I don’t understand “${c}”.`);
+  }
+  const v = expr();
+  if (i < s.length) fail(`I don’t understand “${s[i]}”.`);
+  return v;
+}
+
+// ---------- full line entry: "y = 2x - 4 {-2 <= x <= 12}" ----------
+function parseNumber(t) {
+  const v = parseLinear(t);
+  if (Math.abs(v.x) > EPS || Math.abs(v.y) > EPS) throw new Error('A restriction bound must be a number.');
+  return v.c;
+}
+
+function parseEntry(raw) {
+  const text = raw.trim();
+  if (!text) return null;
+  const norm = text.replace(/≤|=</g, '<=').replace(/≥|=>/g, '>=').replace(/−/g, '-');
+  const braces = [...norm.matchAll(/\{([^}]*)\}/g)].map(m => m[1]);
+  const eqPart = norm.replace(/\{[^}]*\}/g, '').trim();
+  if (/[{}]/.test(eqPart)) throw new Error('Check your curly braces { }.');
+  const sides = eqPart.split('=');
+  if (sides.length !== 2) throw new Error('An equation needs exactly one = sign.');
+  if (!sides[0].trim() || !sides[1].trim()) throw new Error('Something is missing on one side of the = sign.');
+  const L = parseLinear(sides[0]), R = parseLinear(sides[1]);
+  const a = L.x - R.x, b = L.y - R.y, c = L.c - R.c; // a x + b y + c = 0
+  if (Math.abs(a) < EPS && Math.abs(b) < EPS) throw new Error('This equation has no x or y in it.');
+
+  // restriction
+  if (braces.length === 0) return { a, b, c, restricted: false };
+  let lo = -Infinity, hi = Infinity, rv = null;
+  for (const br of braces) {
+    const parts = br.split(/(<=|>=|<|>)/).map(t => t.trim());
+    // parts like [A, op, B] or [A, op, B, op, C]
+    if (parts.length !== 3 && parts.length !== 5) throw new Error('Write the restriction like {-2 <= x <= 12}.');
+    const terms = [], ops = [];
+    parts.forEach((p, k) => (k % 2 ? ops : terms).push(p));
+    const vIdx = terms.findIndex(t => t === 'x' || t === 'y');
+    if (vIdx < 0) throw new Error('The restriction needs x or y by itself, like {-2 <= x <= 12}.');
+    const v = terms[vIdx];
+    if (rv && rv !== v) throw new Error('Restrict only one variable (x or y), not both.');
+    rv = v;
+    const dirUp = ops.every(o => o[0] === '<');
+    const dirDown = ops.every(o => o[0] === '>');
+    if (!dirUp && !dirDown) throw new Error('Both inequality signs in the restriction should point the same way.');
+    terms.forEach((t, k) => {
+      if (k === vIdx) return;
+      const n = parseNumber(t);
+      const before = k < vIdx;
+      // for "<": numbers before the variable are lower bounds
+      const isLower = dirUp ? before : !before;
+      if (isLower) lo = Math.max(lo, n); else hi = Math.min(hi, n);
+    });
+  }
+  if (!(isFinite(lo) && isFinite(hi))) throw new Error('Give the restriction two ends, like {-2 <= x <= 12}.');
+  if (hi < lo - EPS) throw new Error('The restriction is backwards: the smaller number goes first.');
+  if (Math.abs(hi - lo) < EPS) throw new Error('This restriction makes a single point, not a segment.');
+
+  let P, Q;
+  if (rv === 'x') {
+    if (Math.abs(b) < EPS) throw new Error('This is a vertical line. Restrict y instead, like {0 <= y <= 5}.');
+    const yAt = (x) => -(a * x + c) / b;
+    P = { x: lo, y: yAt(lo) }; Q = { x: hi, y: yAt(hi) };
+  } else {
+    if (Math.abs(a) < EPS) throw new Error('This is a horizontal line. Restrict x instead, like {0 <= x <= 5}.');
+    const xAt = (y) => -(b * y + c) / a;
+    P = { x: xAt(lo), y: lo }; Q = { x: xAt(hi), y: hi };
+  }
+  return { a, b, c, restricted: true, rv, lo, hi, P, Q };
+}
+
+// ---------- geometry ----------
+const sub = (p, q) => ({ x: p.x - q.x, y: p.y - q.y });
+const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+const lerp = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
+const cross = (u, v) => u.x * v.y - u.y * v.x;
+
+// params t (on PQ) where PQ meets segment AB (inclusive). Collinear overlaps return both ends.
+function segHits(P, Q, A, B) {
+  const r = sub(Q, P), s = sub(B, A), den = cross(r, s), qp = sub(A, P);
+  if (Math.abs(den) < 1e-12) {
+    if (Math.abs(cross(qp, r)) > 1e-9) return [];
+    const rr = r.x * r.x + r.y * r.y;
+    const t0 = (qp.x * r.x + qp.y * r.y) / rr;
+    const t1 = t0 + (s.x * r.x + s.y * r.y) / rr;
+    const lo = Math.max(0, Math.min(t0, t1)), hi = Math.min(1, Math.max(t0, t1));
+    return lo <= hi + 1e-12 ? [lo, hi] : [];
+  }
+  const t = cross(qp, s) / den, u = cross(qp, r) / den;
+  return (t >= -1e-9 && t <= 1 + 1e-9 && u >= -1e-9 && u <= 1 + 1e-9) ? [Math.min(1, Math.max(0, t))] : [];
+}
+
+// point in polygon, boundary counts as inside
+function onSeg(p, A, B) {
+  const ab = sub(B, A), ap = sub(p, A);
+  if (Math.abs(cross(ab, ap)) > 1e-7 * Math.max(1, Math.hypot(ab.x, ab.y))) return false;
+  const d = ap.x * ab.x + ap.y * ab.y;
+  return d >= -1e-9 && d <= ab.x * ab.x + ab.y * ab.y + 1e-9;
+}
+function inPoly(p, poly, boundaryInside = true) {
+  for (let k = 0; k < poly.length; k++) if (onSeg(p, poly[k], poly[(k + 1) % poly.length])) return boundaryInside;
+  let inside = false;
+  for (let k = 0, j = poly.length - 1; k < poly.length; j = k++) {
+    const a = poly[k], b = poly[j];
+    if ((a.y > p.y) !== (b.y > p.y) && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x) inside = !inside;
+  }
+  return inside;
+}
+
+// first t in [0,1] where the moving point leaves the course (closed region); null if never
+function exitCourse(P, Q, course) {
+  const ts = [0, 1];
+  for (let k = 0; k < course.length; k++) ts.push(...segHits(P, Q, course[k], course[(k + 1) % course.length]));
+  ts.sort((a, b) => a - b);
+  for (let k = 0; k < ts.length - 1; k++) {
+    if (ts[k + 1] - ts[k] < 1e-9) continue;
+    const mid = lerp(P, Q, (ts[k] + ts[k + 1]) / 2);
+    if (!inPoly(mid, course, true)) return ts[k];
+  }
+  return null;
+}
+
+// first t where PQ touches a hazard (closed region); null if never
+function hitHazard(P, Q, hz) {
+  if (hz.type === 'circle') {
+    const d = sub(Q, P), f = sub(P, hz.c);
+    const A = d.x * d.x + d.y * d.y, B = 2 * (f.x * d.x + f.y * d.y), C = f.x * f.x + f.y * f.y - hz.r * hz.r;
+    if (C <= 0) return 0;
+    const disc = B * B - 4 * A * C;
+    if (disc < 0) return null;
+    const t = (-B - Math.sqrt(disc)) / (2 * A);
+    return (t >= 0 && t <= 1) ? t : null;
+  }
+  const poly = hz.pts;
+  if (inPoly(P, poly, true)) return 0;
+  let best = null;
+  for (let k = 0; k < poly.length; k++) {
+    for (const t of segHits(P, Q, poly[k], poly[(k + 1) % poly.length])) if (best === null || t < best) best = t;
+  }
+  return best;
+}
+
+// first t where PQ reaches the cup (center within radius); null if never
+function reachCup(P, Q, cup) {
+  return hitHazard(P, Q, { type: 'circle', c: cup.c, r: cup.r });
+}
+
+// ---------- play a hole ----------
+// entries: array of parsed entries (non-null, restricted) in the order typed, each with .row
+// returns {legs:[{P,Q}], outcome:{type, at, msg, row}}
+function playHole(hole, entries) {
+  const legs = [];
+  let cur = { ...hole.tee };
+  const fmt = (p) => `(${fmtNum(p.x)}, ${fmtNum(p.y)})`;
+  if (!entries.length) return { legs, outcome: { type: 'empty', msg: 'Type at least one equation, then putt.' } };
+
+  const left = entries.slice();
+  for (let k = 0; left.length; k++) {
+    // lines can be typed in any order: use the one that starts where the ball is
+    let idx = -1, P, Q;
+    for (let j = 0; j < left.length; j++) {
+      const e = left[j];
+      if (dist(e.P, cur) < SNAP) { idx = j; P = e.P; Q = e.Q; break; }
+      if (dist(e.Q, cur) < SNAP) { idx = j; P = e.Q; Q = e.P; break; }
+    }
+    if (idx < 0) {
+      const where = k === 0 ? `the tee ${fmt(cur)}` : `${fmt(cur)}, where the ball stopped`;
+      let best = null, bd = Infinity;
+      left.forEach(e => [e.P, e.Q].forEach(pt => { const d = dist(pt, cur); if (d < bd) { bd = d; best = { e, pt }; } }));
+      const lab = `Line ${best.e.row + 1}`;
+      const msg = bd < NEAR
+        ? `So close! ${lab} starts at ${fmt(best.pt)}, but it needs to start exactly at ${where}. Use exact fractions instead of rounded decimals.`
+        : (k === 0 ? `None of your lines starts at the tee ${fmt(cur)}. The ball has to start there.`
+                   : `The ball stopped at ${fmt(cur)}, and none of your other lines starts there. Check where each line begins and ends.`);
+      return { legs, outcome: { type: 'gap', at: cur, msg, row: best.e.row } };
+    }
+    const e = left.splice(idx, 1)[0];
+    const label = `Line ${e.row + 1}`;
+    // events along this leg
+    const ev = [];
+    const tw = exitCourse(P, Q, hole.course);
+    if (tw !== null) ev.push({ t: tw, type: 'wall' });
+    hole.hazards.forEach(hz => { const t = hitHazard(P, Q, hz); if (t !== null) ev.push({ t, type: 'water', name: hz.name }); });
+    const tc = reachCup(P, Q, hole.cup);
+    if (tc !== null) ev.push({ t: tc, type: 'cup' });
+    ev.sort((a, b) => a.t - b.t || (a.type === 'cup' ? 1 : -1));
+    if (ev.length) {
+      const first = ev[0];
+      const at = lerp(P, Q, first.t);
+      legs.push({ P, Q: at });
+      if (first.type === 'cup') {
+        const extra = left.length;
+        return { legs, outcome: { type: 'sunk', at: hole.cup.c, strokes: k + 1, unused: extra, row: e.row } };
+      }
+      if (first.type === 'wall') return { legs, outcome: { type: 'wall', at, row: e.row, msg: `Bonk! ${label} runs into a wall at about ${fmt(at)}. Check its restriction and slope.` } };
+      return { legs, outcome: { type: 'water', at, row: e.row, msg: `Splash! ${label} goes into the ${first.name} at about ${fmt(at)}.` } };
+    }
+    legs.push({ P, Q });
+    cur = Q;
+  }
+  return { legs, outcome: { type: 'short', at: cur, msg: `The ball stops at ${fmt(cur)}. Add another line that starts there and heads for the cup.` } };
+}
+
+// ---------- number formatting: show fractions when exact ----------
+function fmtNum(v) {
+  if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v)).replace('-', '−');
+  for (let d = 2; d <= 60; d++) {
+    const n = Math.round(v * d);
+    if (Math.abs(n / d - v) < 1e-9) return `${n < 0 ? '−' : ''}${Math.abs(n)}/${d}`;
+  }
+  return (Math.round(v * 100) / 100).toString().replace('-', '−');
+}
+
+if (typeof module !== 'undefined') module.exports = { parseEntry, playHole, fmtNum, parseLinear };
+
+const rect = (x0, y0, x1, y1) => [{x:x0,y:y0},{x:x1,y:y0},{x:x1,y:y1},{x:x0,y:y1}];
+const P = (x, y) => ({ x, y });
+const HOLES = [
+  { id: 1, name: 'Warm-Up', par: 2,
+    blurb: 'The pond is in the way, so go around it. Line 1 is done for you. Line 2 has the right restriction but the wrong slope and intercept. Fix it so it follows the dashed guide into the cup.',
+    view: { xmin: -12, xmax: 12, ymin: -8, ymax: 8 },
+    course: rect(-10, -6, 10, 6), tee: P(-8, -3), cup: { c: P(8, -3), r: 0.75 },
+    hazards: [{ type: 'circle', c: P(0, -2), r: 3, name: 'pond' }],
+    guide: [P(0, 5), P(8, -3)],
+    starter: ['y = x + 5 {-8 <= x <= 0}', 'y = -2x + 5 {0 <= x <= 8}', ''] },
+  { id: 2, name: 'The Dogleg', par: 3,
+    blurb: 'The course bends to the right, and two ponds guard the way. Get from the tee at the top to the cup in the lower right.',
+    view: { xmin: -6, xmax: 18, ymin: -12, ymax: 10 },
+    course: [P(-4, 8), P(4, 8), P(4, -2), P(16, -2), P(16, -10), P(-4, -10)],
+    tee: P(0, 8), cup: { c: P(13, -6), r: 0.75 },
+    hazards: [{ type: 'poly', pts: rect(-1, 1, 3, 3), name: 'upper pond' },
+              { type: 'poly', pts: rect(7, -8, 9, -4), name: 'lower pond' }],
+    starter: ['', '', '', ''] },
+  { id: 3, name: 'Corner Pocket', par: 2,
+    blurb: 'Two corners are cut off at an angle, and a round pond sits in the middle. Find the shortest safe route to the cup in the upper left.',
+    view: { xmin: -10, xmax: 10, ymin: -8, ymax: 8 },
+    course: [P(-8, 6), P(5, 6), P(8, 3), P(8, -6), P(-5, -6), P(-8, -3)],
+    tee: P(5, -4), cup: { c: P(-6, 4), r: 0.75 },
+    hazards: [{ type: 'circle', c: P(0, 0), r: 2.5, name: 'pond' },
+              { type: 'poly', pts: rect(-7, -4, -3, -2), name: 'sand pond' }],
+    starter: ['', '', '', ''] },
+];
+if (typeof module !== 'undefined') module.exports = { HOLES };
+
+</script>
+<script>
+(() => {
+  const ROW_COLORS = ['#c0392b', '#7b3fa0', '#d9822b', '#1f6f78', '#8a5a2b', '#c2185b', '#4b4f9e', '#5c7d1f'];
+  const $ = (id) => document.getElementById(id);
+  const svg = $('svg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- state ----------
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem('linear-links-v1')) || {}; } catch (e) { return {}; } },
+    set(v) { try { localStorage.setItem('linear-links-v1', JSON.stringify(v)); } catch (e) {} },
+  };
+  const saved = store.get();
+  const S = {
+    hole: 0,
+    view: 'play',
+    rows: HOLES.map((h, i) => (saved.rows && saved.rows[i]) ? saved.rows[i].slice() : h.starter.slice()),
+    results: saved.results || {},     // holeId -> {strokes, eqs, putts}
+    putts: saved.putts || {},
+    name: saved.name || '',
+    anim: null,
+  };
+  const persist = () => store.set({ rows: S.rows, results: S.results, putts: S.putts, name: S.name });
+
+  // ---------- geometry -> screen ----------
+  let M; // mapping
+  function setupMap(h) {
+    const v = h.view, W = 800;
+    const sx = W / (v.xmax - v.xmin);
+    const H = Math.round((v.ymax - v.ymin) * sx);
+    M = { W, H, X: (x) => (x - v.xmin) * sx, Y: (y) => (v.ymax - y) * sx, s: sx,
+          inv: (px, py) => ({ x: v.xmin + px / sx, y: v.ymax - py / sx }) };
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  }
+  const el = (tag, attrs, parent) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(n);
+    return n;
+  };
+  const pts = (arr) => arr.map(p => `${M.X(p.x).toFixed(2)},${M.Y(p.y).toFixed(2)}`).join(' ');
+
+  // ---------- draw ----------
+  let layerPaths, layerBall, layerTip;
+  function drawBoard() {
+    const h = HOLES[S.hole];
+    setupMap(h);
+    svg.innerHTML = '';
+    const v = h.view;
+    el('rect', { x: 0, y: 0, width: M.W, height: M.H, fill: 'var(--paper)' });
+    const g = el('g', {});
+    for (let x = Math.ceil(v.xmin); x <= v.xmax; x++)
+      el('line', { x1: M.X(x), x2: M.X(x), y1: 0, y2: M.H, stroke: x % 2 ? 'var(--grid-minor)' : 'var(--grid-major)', 'stroke-width': x % 2 ? 0.8 : 1 }, g);
+    for (let y = Math.ceil(v.ymin); y <= v.ymax; y++)
+      el('line', { y1: M.Y(y), y2: M.Y(y), x1: 0, x2: M.W, stroke: y % 2 ? 'var(--grid-minor)' : 'var(--grid-major)', 'stroke-width': y % 2 ? 0.8 : 1 }, g);
+    // course
+    el('polygon', { points: pts(h.course), fill: 'var(--felt)', stroke: 'none' });
+    // axes on top of felt, subtle
+    el('line', { x1: M.X(v.xmin), x2: M.X(v.xmax), y1: M.Y(0), y2: M.Y(0), stroke: 'var(--axis)', 'stroke-width': 1.3, opacity: 0.85 });
+    el('line', { y1: M.Y(v.ymin), y2: M.Y(v.ymax), x1: M.X(0), x2: M.X(0), stroke: 'var(--axis)', 'stroke-width': 1.3, opacity: 0.85 });
+    const step = (v.xmax - v.xmin) > 22 ? 4 : 2;
+    for (let x = Math.ceil(v.xmin / step) * step; x <= v.xmax; x += step) {
+      if (x === 0 || x === v.xmin || x === v.xmax) continue;
+      el('text', { x: M.X(x), y: Math.min(M.H - 4, M.Y(0) + 15), 'text-anchor': 'middle', class: 'tick-label' }).textContent = String(x).replace('-', '−');
+    }
+    for (let y = Math.ceil(v.ymin / step) * step; y <= v.ymax; y += step) {
+      if (y === 0 || y === v.ymin || y === v.ymax) continue;
+      el('text', { x: Math.max(14, M.X(0) - 6), y: M.Y(y) + 4, 'text-anchor': 'end', class: 'tick-label' }).textContent = String(y).replace('-', '−');
+    }
+    // hazards
+    h.hazards.forEach(hz => {
+      const common = { fill: 'var(--water)', 'fill-opacity': 0.72, stroke: 'var(--water-edge)', 'stroke-width': 2 };
+      if (hz.type === 'circle') el('circle', { cx: M.X(hz.c.x), cy: M.Y(hz.c.y), r: hz.r * M.s, ...common });
+      else el('polygon', { points: pts(hz.pts), ...common, 'stroke-linejoin': 'round' });
+    });
+    // walls
+    el('polygon', { points: pts(h.course), fill: 'none', stroke: 'var(--felt-edge)', 'stroke-width': 3.5, 'stroke-linejoin': 'round' });
+    // guide
+    if (h.guide) el('line', { x1: M.X(h.guide[0].x), y1: M.Y(h.guide[0].y), x2: M.X(h.guide[1].x), y2: M.Y(h.guide[1].y), stroke: 'var(--ink)', 'stroke-width': 2, 'stroke-dasharray': '7 6', opacity: 0.55 });
+    // cup + flag
+    const cx = M.X(h.cup.c.x), cy = M.Y(h.cup.c.y), cr = h.cup.r * M.s;
+    el('circle', { cx, cy, r: cr, fill: 'var(--cup)', stroke: 'var(--felt-edge)', 'stroke-width': 1.5 });
+    el('line', { x1: cx, y1: cy, x2: cx, y2: cy - cr * 3.2, stroke: 'var(--ink)', 'stroke-width': 2 });
+    el('polygon', { points: `${cx},${cy - cr * 3.2} ${cx + cr * 1.9},${cy - cr * 2.75} ${cx},${cy - cr * 2.3}`, fill: 'var(--accent)' });
+    // tee marker
+    el('circle', { cx: M.X(h.tee.x), cy: M.Y(h.tee.y), r: 9, fill: 'none', stroke: 'var(--ball)', 'stroke-width': 1.5, 'stroke-dasharray': '3 3' });
+    dotWithTip(h.tee, 'var(--ball)', 0, 'tee');
+    dotWithTip(h.cup.c, 'transparent', 0, 'cup');
+
+    layerPaths = el('g', {});
+    layerBall = el('g', {});
+    layerTip = el('g', { 'pointer-events': 'none' });
+    drawPaths();
+    placeBall(h.tee);
+  }
+
+  function dotWithTip(p, color, r, label) {
+    const hit = el('circle', { cx: M.X(p.x), cy: M.Y(p.y), r: Math.max(r, 9), fill: color === 'transparent' ? 'transparent' : 'transparent', style: 'cursor:help' });
+    if (r) el('circle', { cx: M.X(p.x), cy: M.Y(p.y), r, fill: color, 'pointer-events': 'none' });
+    const show = () => {
+      layerTip && (layerTip.innerHTML = '');
+      const t = el('text', { x: M.X(p.x) + 10, y: M.Y(p.y) - 10, class: 'tip' }, layerTip);
+      t.textContent = `${label ? label + ' ' : ''}(${fmtNum(p.x)}, ${fmtNum(p.y)})`;
+      if (M.X(p.x) > M.W - 170) { t.setAttribute('x', M.X(p.x) - 10); t.setAttribute('text-anchor', 'end'); }
+    };
+    hit.addEventListener('mouseenter', show);
+    hit.addEventListener('mouseleave', () => layerTip && (layerTip.innerHTML = ''));
+    hit.addEventListener('click', show);
+    return hit;
+  }
+
+  // parsed rows
+  function parsedRows() {
+    return S.rows[S.hole].map((txt, i) => {
+      try { const e = parseEntry(txt); if (e) e.row = i; return { e, err: null }; }
+      catch (err) { return { e: null, err: err.message }; }
+    });
+  }
+
+  function drawPaths(dim) {
+    if (!layerPaths) return;
+    layerPaths.innerHTML = '';
+    const h = HOLES[S.hole], v = h.view;
+    parsedRows().forEach(({ e }, i) => {
+      if (!e) return;
+      const color = ROW_COLORS[i % ROW_COLORS.length];
+      if (!e.restricted) {
+        // full line, clipped to view, dashed
+        let A, B;
+        if (Math.abs(e.b) > 1e-9) { A = { x: v.xmin, y: -(e.a * v.xmin + e.c) / e.b }; B = { x: v.xmax, y: -(e.a * v.xmax + e.c) / e.b }; }
+        else { A = { x: -e.c / e.a, y: v.ymin }; B = { x: -e.c / e.a, y: v.ymax }; }
+        el('line', { x1: M.X(A.x), y1: M.Y(A.y), x2: M.X(B.x), y2: M.Y(B.y), stroke: color, 'stroke-width': 2, 'stroke-dasharray': '2 6', 'stroke-linecap': 'round', opacity: 0.8 }, layerPaths);
+        return;
+      }
+      el('line', { x1: M.X(e.P.x), y1: M.Y(e.P.y), x2: M.X(e.Q.x), y2: M.Y(e.Q.y), stroke: color, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: dim ? 0.35 : 0.95 }, layerPaths);
+      [e.P, e.Q].forEach(p => {
+        const d = el('circle', { cx: M.X(p.x), cy: M.Y(p.y), r: 4.5, fill: 'var(--panel)', stroke: color, 'stroke-width': 2.5 }, layerPaths);
+        d.style.cursor = 'help';
+        const show = () => { layerTip.innerHTML = ''; const t = el('text', { x: M.X(p.x) + 9, y: M.Y(p.y) - 9, class: 'tip' }, layerTip); t.textContent = `(${fmtNum(p.x)}, ${fmtNum(p.y)})`; if (M.X(p.x) > M.W - 150) { t.setAttribute('x', M.X(p.x) - 9); t.setAttribute('text-anchor', 'end'); } };
+        d.addEventListener('mouseenter', show); d.addEventListener('click', show);
+        d.addEventListener('mouseleave', () => layerTip.innerHTML = '');
+      });
+    });
+  }
+
+  let ballEl, trailEl;
+  function placeBall(p) {
+    layerBall.innerHTML = '';
+    trailEl = el('polyline', { points: '', fill: 'none', stroke: 'var(--ink)', 'stroke-width': 2, 'stroke-dasharray': '1 6', 'stroke-linecap': 'round', opacity: 0.6 }, layerBall);
+    ballEl = el('circle', { cx: M.X(p.x), cy: M.Y(p.y), r: 7, fill: 'var(--ball)', stroke: '#ffffff', 'stroke-width': 2 }, layerBall);
+  }
+
+  // ---------- panel ----------
+  function renderNav() {
+    const nav = $('nav'); nav.innerHTML = '';
+    HOLES.forEach((h, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-current', S.view === 'play' && S.hole === i ? 'true' : 'false');
+      b.innerHTML = `${S.results[h.id] ? '<span class="tick" aria-label="completed">✓</span>' : ''}Hole ${h.id}`;
+      b.onclick = () => { S.view = 'play'; S.hole = i; render(); };
+      nav.appendChild(b);
+    });
+    const sc = document.createElement('button');
+    sc.type = 'button';
+    sc.setAttribute('aria-current', S.view === 'card' ? 'true' : 'false');
+    sc.textContent = 'Scorecard';
+    sc.onclick = () => { S.view = 'card'; render(); };
+    nav.appendChild(sc);
+  }
+
+  let lastFocus = null;
+  function renderRows() {
+    const box = $('lines'); box.innerHTML = '';
+    const parsed = parsedRows();
+    S.rows[S.hole].forEach((txt, i) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.dataset.i = i;
+      const color = ROW_COLORS[i % ROW_COLORS.length];
+      row.innerHTML = `<span class="idx" style="background:${color}">${i + 1}</span>
+        <input type="text" id="eq-${S.hole}-${i}" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Line ${i + 1}" placeholder="y = mx + b {a <= x <= b}">
+        <button class="del" type="button" aria-label="Delete line ${i + 1}" title="Delete line">×</button>
+        <div class="note"></div>`;
+      const inp = row.querySelector('input');
+      inp.value = txt;
+      inp.addEventListener('input', () => { S.rows[S.hole][i] = inp.value; persist(); updateNotes(); stopAnim(); drawPaths(); placeBall(HOLES[S.hole].tee); });
+      inp.addEventListener('focus', () => { lastFocus = inp; });
+      inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); putt(); } });
+      row.querySelector('.del').onclick = () => {
+        S.rows[S.hole].splice(i, 1);
+        if (!S.rows[S.hole].length) S.rows[S.hole].push('');
+        persist(); renderRows(); drawPaths(); placeBall(HOLES[S.hole].tee);
+      };
+      box.appendChild(row);
+    });
+    updateNotes(parsed);
+  }
+
+  function updateNotes() {
+    const parsed = parsedRows();
+    document.querySelectorAll('#lines .row').forEach((row, i) => {
+      const { e, err } = parsed[i] || {};
+      const note = row.querySelector('.note');
+      row.classList.remove('flag');
+      if (err) { note.className = 'note err'; note.textContent = err; }
+      else if (e && !e.restricted) { note.className = 'note err'; note.textContent = 'Add a restriction so the ball knows where this line starts and stops, like {0 <= x <= 4}.'; }
+      else if (e) { note.className = 'note okn'; note.textContent = `from (${fmtNum(e.P.x)}, ${fmtNum(e.P.y)}) to (${fmtNum(e.Q.x)}, ${fmtNum(e.Q.y)})`; }
+      else { note.className = 'note'; note.textContent = ''; }
+    });
+  }
+
+  function setMsg(kind, html) {
+    const m = $('msg');
+    m.className = 'msg' + (kind ? ' ' + kind : '');
+    m.innerHTML = html;
+  }
+  const esc = (s) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ---------- putt ----------
+  function stopAnim() { if (S.anim) cancelAnimationFrame(S.anim); S.anim = null; $('putt').disabled = false; }
+
+  function putt() {
+    stopAnim();
+    const h = HOLES[S.hole];
+    const parsed = parsedRows();
+    const bad = parsed.findIndex(p => p.err || (p.e && !p.e.restricted));
+    if (bad >= 0) {
+      document.querySelectorAll('#lines .row')[bad].classList.add('flag');
+      setMsg('bad', `<strong>Fix line ${bad + 1} first.</strong> ${esc(parsed[bad].err || 'It needs a restriction.')}`);
+      return;
+    }
+    const entries = parsed.map(p => p.e).filter(Boolean);
+    const res = playHole(h, entries);
+    if (res.outcome.type === 'empty') { setMsg('bad', `<strong>No path yet.</strong> ${res.outcome.msg}`); return; }
+    S.putts[h.id] = (S.putts[h.id] || 0) + 1;
+    persist();
+    animate(res, () => finish(res));
+  }
+
+  function animate(res, done) {
+    const h = HOLES[S.hole];
+    placeBall(h.tee);
+    drawPaths(true);
+    $('putt').disabled = true;
+    setMsg('', '<strong>Rolling…</strong>');
+    const legs = res.legs;
+    const lens = legs.map(l => Math.hypot(l.Q.x - l.P.x, l.Q.y - l.P.y));
+    const total = lens.reduce((a, b) => a + b, 0);
+    const speed = 9; // units per second
+    const trail = [h.tee];
+    if (reduceMotion || total === 0) {
+      legs.forEach(l => trail.push(l.Q));
+      const end = legs.length ? legs[legs.length - 1].Q : h.tee;
+      trailEl.setAttribute('points', pts(trail));
+      ballEl.setAttribute('cx', M.X(end.x)); ballEl.setAttribute('cy', M.Y(end.y));
+      $('putt').disabled = false; done(); return;
+    }
+    const t0 = performance.now();
+    const step = (now) => {
+      let d = Math.min(total, (now - t0) / 1000 * speed);
+      let k = 0, acc = 0;
+      while (k < legs.length - 1 && acc + lens[k] < d) { acc += lens[k]; k++; }
+      const L = legs[k], f = lens[k] ? (d - acc) / lens[k] : 1;
+      const p = { x: L.P.x + (L.Q.x - L.P.x) * f, y: L.P.y + (L.Q.y - L.P.y) * f };
+      const shown = [h.tee]; for (let j = 0; j < k; j++) shown.push(legs[j].Q); shown.push(p);
+      trailEl.setAttribute('points', pts(shown));
+      ballEl.setAttribute('cx', M.X(p.x)); ballEl.setAttribute('cy', M.Y(p.y));
+      if (d < total) S.anim = requestAnimationFrame(step);
+      else { S.anim = null; $('putt').disabled = false; done(); }
+    };
+    S.anim = requestAnimationFrame(step);
+  }
+
+  function burst(p, color) {
+    const c = el('circle', { cx: M.X(p.x), cy: M.Y(p.y), r: 8, fill: 'none', stroke: color, 'stroke-width': 3 }, layerBall);
+    if (reduceMotion) return;
+    c.animate([{ r: 8, opacity: 1 }, { r: 34, opacity: 0 }], { duration: 650, easing: 'ease-out' }).onfinish = () => c.remove();
+  }
+
+  function finish(res) {
+    const h = HOLES[S.hole], o = res.outcome;
+    if (o.type === 'sunk') {
+      // drop into the cup
+      const cx = M.X(h.cup.c.x), cy = M.Y(h.cup.c.y);
+      if (!reduceMotion) ballEl.animate([{ cx: ballEl.getAttribute('cx'), cy: ballEl.getAttribute('cy'), r: 7 }, { cx, cy, r: 0.5 }], { duration: 380, easing: 'ease-in', fill: 'forwards' });
+      else ballEl.setAttribute('r', 0.5);
+      const diff = o.strokes - h.par;
+      const term = diff <= -2 ? 'Eagle!' : diff === -1 ? 'Birdie!' : diff === 0 ? 'Par.' : diff === 1 ? 'Bogey.' : `${diff} over par.`;
+      const eqs = parsedRows().filter(p => p.e).map(p => S.rows[S.hole][p.e.row].trim());
+      const prev = S.results[h.id];
+      if (!prev || o.strokes <= prev.strokes) S.results[h.id] = { strokes: o.strokes, eqs };
+      persist(); renderNav();
+      const next = S.hole < HOLES.length - 1 ? ` <button class="btn" id="nextHole" type="button" style="margin-top:8px">Go to Hole ${HOLES[S.hole + 1].id} →</button>` : ` <button class="btn" id="nextHole" type="button" style="margin-top:8px">See your scorecard →</button>`;
+      const extra = o.unused ? ` (You didn’t need ${o.unused === 1 ? 'one of your lines' : o.unused + ' of your lines'}.)` : '';
+      setMsg('ok', `<strong>In the cup!</strong> ${o.strokes} line${o.strokes > 1 ? 's' : ''} on a par ${h.par}. ${term}${extra}${next}`);
+      $('nextHole').onclick = () => { if (S.hole < HOLES.length - 1) { S.hole++; S.view = 'play'; } else S.view = 'card'; render(); };
+      return;
+    }
+    if (o.type === 'water') burst(o.at, 'var(--water-edge)');
+    else if (o.type === 'wall') burst(o.at, 'var(--bad)');
+    if (o.row !== undefined) { const r = document.querySelectorAll('#lines .row')[o.row]; r && r.classList.add('flag'); }
+    const head = { water: 'Splash.', wall: 'Bonk.', gap: 'The path breaks.', short: 'Not in yet.' }[o.type] || 'Try again.';
+    setMsg('bad', `<strong>${head}</strong> ${esc(o.msg.replace(/^(Splash!|Bonk!) /, ''))}`);
+  }
+
+  // ---------- scorecard ----------
+  function renderCard() {
+    if (document.activeElement !== $('playerName')) $('playerName').value = S.name;
+    let tot = 0, totPar = 0, done = 0;
+    let html = '<thead><tr><th>Hole</th><th>Par</th><th>Lines used</th><th>Putts tried</th><th>Status</th><th>Your equations</th></tr></thead><tbody>';
+    HOLES.forEach(h => {
+      const r = S.results[h.id];
+      totPar += h.par;
+      if (r) { tot += r.strokes; done++; }
+      html += `<tr><td><strong>${h.id}</strong> · ${h.name}</td><td class="num">${h.par}</td><td class="num">${r ? r.strokes : '–'}</td><td class="num">${S.putts[h.id] || 0}</td>
+        <td>${r ? '<span class="pill done">In the cup</span>' : '<span class="pill todo">Not yet</span>'}</td>
+        <td class="eqs">${r ? esc(r.eqs.join('\n')) : ''}</td></tr>`;
+    });
+    html += `<tr><td><strong>Total</strong></td><td class="num">${totPar}</td><td class="num">${done === HOLES.length ? tot : '–'}</td><td class="num">${Object.values(S.putts).reduce((a, b) => a + b, 0)}</td><td colspan="2">${done} of ${HOLES.length} holes finished</td></tr></tbody>`;
+    $('scTable').innerHTML = html;
+    $('scFoot').textContent = done === HOLES.length
+      ? `All three holes finished${S.name ? ' by ' + S.name : ''}. Nice work: you’re ready to design your own course.`
+      : 'Holes you haven’t finished show “Not yet.” Lines used counts your best finish on each hole.';
+  }
+
+  // ---------- wiring ----------
+  function render() {
+    stopAnim();
+    renderNav();
+    const play = S.view === 'play';
+    $('play').hidden = !play;
+    $('scorecard').hidden = play;
+    if (!play) { renderCard(); return; }
+    const h = HOLES[S.hole];
+    $('holeNo').textContent = `Hole ${h.id}`;
+    $('holeName').textContent = h.name;
+    $('holePar').textContent = `Par ${h.par}`;
+    $('holeBlurb').textContent = h.blurb;
+    renderRows();
+    drawBoard();
+    const r = S.results[h.id];
+    setMsg(r ? 'ok' : '', r ? `<strong>Done.</strong> You sank this one in ${r.strokes}. Try for fewer lines, or move on.` : '<strong>Ready.</strong> Write your path, then press Putt.');
+  }
+
+  $('putt').onclick = putt;
+  $('resetBall').onclick = () => { stopAnim(); drawPaths(); placeBall(HOLES[S.hole].tee); setMsg('', '<strong>Ready.</strong> Write your path, then press Putt.'); };
+  $('addLine').onclick = () => {
+    if (S.rows[S.hole].length >= 8) return;
+    S.rows[S.hole].push(''); persist(); renderRows();
+    const ins = document.querySelectorAll('#lines input'); ins[ins.length - 1].focus();
+  };
+  document.querySelectorAll('.key').forEach(k => {
+    k.addEventListener('mousedown', ev => ev.preventDefault());
+    k.onclick = () => {
+      const inp = (lastFocus && document.body.contains(lastFocus)) ? lastFocus : document.querySelector('#lines input');
+      if (!inp) return;
+      const ins = k.dataset.ins, s0 = inp.selectionStart ?? inp.value.length, s1 = inp.selectionEnd ?? s0;
+      inp.value = inp.value.slice(0, s0) + ins + inp.value.slice(s1);
+      const caret = ins.startsWith('{') ? s0 + 2 : s0 + ins.length;
+      inp.focus(); inp.setSelectionRange(caret, caret);
+      inp.dispatchEvent(new Event('input'));
+    };
+  });
+  $('playerName').addEventListener('input', (ev) => { S.name = ev.target.value; persist(); renderCard(); $('playerName').focus(); });
+
+  svg.addEventListener('mousemove', (ev) => {
+    const r = svg.getBoundingClientRect();
+    const p = M.inv((ev.clientX - r.left) * M.W / r.width, (ev.clientY - r.top) * M.H / r.height);
+    $('coords').textContent = `(${p.x.toFixed(1)}, ${p.y.toFixed(1)})`;
+  });
+  svg.addEventListener('mouseleave', () => { $('coords').textContent = '(x, y)'; });
+
+  render();
+})();
+</script>
+</body></html>
